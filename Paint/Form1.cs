@@ -14,6 +14,7 @@ namespace Paint
     public partial class Form1 : Form
     {
         Point oldPoint;
+        Point myPoint;
         Bitmap myBuffer;                Bitmap paint;
         Graphics g;
         Graphics b;    
@@ -45,7 +46,8 @@ namespace Paint
                16,
                FontStyle.Regular,
                GraphicsUnit.Pixel);
-
+            textBox.Text = "Text bitte hier eingeben.";
+            myBrush = Brushes.Black;
 
 
         }
@@ -58,15 +60,16 @@ namespace Paint
         {
             if (e.Button == MouseButtons.Left)                 
             {
-                
+                //bisheriges auf puffer
                 b.DrawImage(paint, 0, 0, myBuffer.Width, myBuffer.Height);
+                //neues auf Puffer
                 if (radioLinie.Checked)
                     b.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
                 else if (radioRecht.Checked)
-                    b.DrawRectangle(myPen, oldPoint.X, oldPoint.Y, (e.X - oldPoint.X), (e.Y - oldPoint.Y));
+                    z.DrawRectangle(myPen, e.X, e.Y, (myPoint.X - e.X), (myPoint.Y - e.Y));
                 //else if (radioFrei.Checked)
-
-                //else if (radioText.Checked)
+           
+                //puffer auf bild
                 g.DrawImage(myBuffer, 0, 0, myBuffer.Width, myBuffer.Height);
                 
 
@@ -77,6 +80,9 @@ namespace Paint
         private void panel1_MouseDown(object sender, MouseEventArgs e)
         {
             oldPoint = new Point(e.X, e.Y);
+            if (radioRecht.Checked)
+                 myPoint = new Point(e.X,e.Y);
+           
         }
 
         private void panel1_MouseUp(object sender, MouseEventArgs e)
@@ -85,9 +91,7 @@ namespace Paint
             if (radioLinie.Checked) 
                 z.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
             else if (radioRecht.Checked)
-                z.DrawRectangle(myPen, oldPoint.X, oldPoint.Y, (e.X - oldPoint.X), (e.Y - oldPoint.Y));
-            //else if (radioText.Checked)
-
+                z.DrawRectangle(myPen, e.X, e.Y, ( myPoint.X - e.X ), ( myPoint.Y - e.Y));
             //else if (radioFrei.Checked)
 
 
@@ -95,6 +99,7 @@ namespace Paint
            
         }
 
+        //Altes aktualisiert
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.DrawImage(paint, 0, 0, paint.Width, paint.Height);
@@ -142,15 +147,75 @@ namespace Paint
                 {
                     fontButton.Enabled = true;
                     colorButton.Enabled = true;
+                    Stifte.Enabled = false;
+                    numStift.Enabled = false;
                 }
+        }
+
+       
+
+        private void radioFrei_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioFrei.Checked) {
+                fontButton.Enabled = false;
+                colorButton.Enabled = false;
+                Stifte.Enabled = true;
+                numStift.Enabled = true;
+            }
+            
+        }
+
+        private void radioLinie_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioLinie.Checked) {
+                fontButton.Enabled = false;
+                colorButton.Enabled = false;
+                Stifte.Enabled = true;
+                numStift.Enabled = true;
+            }
+      
+        }
+
+        private void radioRecht_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioRecht.Checked)
+            {
+                fontButton.Enabled = false;
+                colorButton.Enabled = false;
+                Stifte.Enabled = true;
+                numStift.Enabled = true;
+            }
         }
 
         private void fontButton_Click(object sender, EventArgs e)
         {
-           
+
 
         }
-       
+
+        private void colorButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox_Enter(object sender, EventArgs e)
+        {
+            textBox.Text = "";
+        }
+
+        private void textBox_Leave(object sender, EventArgs e)
+        {
+            if ( string.Equals(textBox.Text,""))
+                textBox.Text = "Text bitte hier eingeben.";
+        }
+
+  
+
+        private void panel1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (radioText.Checked)
+                z.DrawString(textBox.Text, myFont, myBrush, e.X, e.Y);
+        }
     }
 }
 
@@ -164,3 +229,8 @@ namespace Paint
 //tooltips
 //server
 //datei
+//DB
+
+
+//fix text
+//fix triangle
