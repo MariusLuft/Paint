@@ -15,7 +15,8 @@ namespace Paint
     {
         Point oldPoint;
         Point myPoint;
-        Bitmap myBuffer;                Bitmap paint;
+        Bitmap myBuffer;        
+        Bitmap paint;
         Graphics g;
         Graphics b;    
         Graphics z;
@@ -65,8 +66,17 @@ namespace Paint
                 //neues auf Puffer
                 if (radioLinie.Checked)
                     b.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
-                else if (radioRecht.Checked)
-                    z.DrawRectangle(myPen, e.X, e.Y, (myPoint.X - e.X), (myPoint.Y - e.Y));
+                else if (radioRecht.Checked) {
+                    if(Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == myPoint.Y)
+                        b.DrawRectangle(myPen, myPoint.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    else if (Math.Min(myPoint.X, e.X) == e.X && Math.Min(myPoint.Y, e.Y) == e.Y)
+                        b.DrawRectangle(myPen, e.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    else if (Math.Min(myPoint.X, e.X) == e.X && Math.Min(myPoint.Y, e.Y) == myPoint.Y)
+                        b.DrawRectangle(myPen, e.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    else if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == e.Y)
+                        b.DrawRectangle(myPen, myPoint.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                }
+                    
                 //else if (radioFrei.Checked)
            
                 //puffer auf bild
@@ -87,16 +97,23 @@ namespace Paint
 
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
-            z = Graphics.FromImage(paint);
+           
             if (radioLinie.Checked) 
                 z.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
             else if (radioRecht.Checked)
-                z.DrawRectangle(myPen, e.X, e.Y, ( myPoint.X - e.X ), ( myPoint.Y - e.Y));
+                if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == myPoint.Y)
+                    z.DrawRectangle(myPen, myPoint.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                else if (Math.Min(myPoint.X, e.X) == e.X && Math.Min(myPoint.Y, e.Y) == e.Y)
+                    z.DrawRectangle(myPen, e.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                else if (Math.Min(myPoint.X, e.X) == e.X && Math.Min(myPoint.Y, e.Y) == myPoint.Y)
+                    z.DrawRectangle(myPen, e.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                else if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == e.Y)
+                    z.DrawRectangle(myPen, myPoint.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
             //else if (radioFrei.Checked)
 
 
-           
-           
+
+
         }
 
         //Altes aktualisiert
@@ -214,17 +231,16 @@ namespace Paint
         private void panel1_MouseClick(object sender, MouseEventArgs e)
         {
             if (radioText.Checked)
+            {
                 z.DrawString(textBox.Text, myFont, myBrush, e.X, e.Y);
+                this.Refresh();
+            }
+               
         }
     }
 }
 
 
-//myFont = new Font(
-//               fontFamily,
-//               (float) numStift.Value,
-//               FontStyle.Regular,
-//               GraphicsUnit.Pixel);
 
 //tooltips
 //server
@@ -232,5 +248,3 @@ namespace Paint
 //DB
 
 
-//fix text
-//fix triangle
