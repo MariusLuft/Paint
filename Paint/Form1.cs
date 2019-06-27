@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
 
+
 namespace Paint
 {
     public partial class Form1 : Form
@@ -22,7 +23,7 @@ namespace Paint
         Graphics z;
         Font myFont;
         Pen myPen;
-        Brush myBrush;
+        SolidBrush myBrush;
         FontFamily fontFamily;
         Color myColor;
 
@@ -48,8 +49,33 @@ namespace Paint
                FontStyle.Regular,
                GraphicsUnit.Pixel);
             textBox.Text = "Text bitte hier eingeben.";
-            myBrush = Brushes.Black;
+            myBrush = new SolidBrush(Color.Black);
+            panel2.BackColor = Color.Black;
 
+            //tooltips
+            // Create the ToolTip and associate with the Form container.
+            ToolTip toolTip1 = new ToolTip();
+
+            // Set up the delays for the ToolTip.
+            toolTip1.AutoPopDelay = 5000;
+            toolTip1.InitialDelay = 1000;
+            toolTip1.ReshowDelay = 500;
+            // Force the ToolTip text to be displayed whether or not the form is active.
+            toolTip1.ShowAlways = true;
+
+            // Set up the ToolTip text for itmes
+            toolTip1.SetToolTip(this.radioText, "Schreibe etwas Text...");
+            toolTip1.SetToolTip(this.radioLinie, "Zeichne ein paar Linien...");
+            toolTip1.SetToolTip(this.radioRecht, "Zeichne ein paar Rechtecke...");
+            toolTip1.SetToolTip(this.radioFrei, "Zeichne einfach freihand...");
+            toolTip1.SetToolTip(this.Stifte, "Wähle deinn Lieblingsstift...");
+            toolTip1.SetToolTip(this.numStift, "Wie stark soll dein Stift zeichnen?");
+            toolTip1.SetToolTip(this.fontButton, "Du kannst hier deine Schriftart wählen...");
+            toolTip1.SetToolTip(this.colorButton, "Du kannst hier deine Schriftfarbe wählen...");
+            toolTip1.SetToolTip(this.loadButton, "Hier kannst du dein Bild laden...");
+            toolTip1.SetToolTip(this.saveButton, "Hier kannst du ein Bild speichern...");
+            toolTip1.SetToolTip(this.newButton, "Fange ein neues Bild an...");
+            toolTip1.SetToolTip(this.connectButton, "Male ein Bild mit deinen Freunden...");
 
         }
 
@@ -76,9 +102,13 @@ namespace Paint
                     else if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == e.Y)
                         b.DrawRectangle(myPen, myPoint.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
                 }
-                    
-                //else if (radioFrei.Checked)
-           
+
+                else if (radioFrei.Checked)
+                {
+                    z.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
+                    oldPoint = new Point(e.X, e.Y);                    
+                }
+
                 //puffer auf bild
                 g.DrawImage(myBuffer, 0, 0, myBuffer.Width, myBuffer.Height);
                 
@@ -97,8 +127,8 @@ namespace Paint
 
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
-           
-            if (radioLinie.Checked) 
+
+            if (radioLinie.Checked)
                 z.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
             else if (radioRecht.Checked)
                 if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == myPoint.Y)
@@ -109,11 +139,7 @@ namespace Paint
                     z.DrawRectangle(myPen, e.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
                 else if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == e.Y)
                     z.DrawRectangle(myPen, myPoint.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
-            //else if (radioFrei.Checked)
-
-
-
-
+                
         }
 
         //Altes aktualisiert
@@ -206,13 +232,25 @@ namespace Paint
 
         private void fontButton_Click(object sender, EventArgs e)
         {
-
-
+            FontDialog dlg = new FontDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
+                myFont = dlg.Font;
         }
 
         private void colorButton_Click(object sender, EventArgs e)
         {
-
+            ColorDialog dlg = new ColorDialog();
+            dlg.FullOpen = true;
+            // Sets the initial color
+            dlg.Color = Color.Black;
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                //Font color
+                myBrush = new SolidBrush(dlg.Color);
+                //Color Box
+                panel2.BackColor = dlg.Color;
+            }
+            
         }
 
         private void textBox_Enter(object sender, EventArgs e)
@@ -242,7 +280,7 @@ namespace Paint
 
 
 
-//tooltips
+
 //server
 //datei
 //DB
