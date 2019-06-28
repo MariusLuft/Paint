@@ -12,7 +12,7 @@ using System.Drawing.Imaging;
 
 namespace Paint
 {
-    public partial class Form1 : Form
+    public partial class Paint : Form
     {
         Point oldPoint;
         Point myPoint;
@@ -26,8 +26,15 @@ namespace Paint
         SolidBrush myBrush;
         FontFamily fontFamily;
         Color myColor;
+        conDlg cd = new conDlg();
+        struct buffer
+        {
+            int id;
+            int x1, y1, x2, y2;
+            //int 
+        }
 
-        public Form1()
+        public Paint()
         {
             InitializeComponent();
             myBuffer = new Bitmap(ClientSize.Width, ClientSize.Height, PixelFormat.Format24bppRgb);
@@ -79,7 +86,7 @@ namespace Paint
 
         }
 
-        ~Form1 () {
+        ~Paint () {
             z.Dispose(); g.Dispose(); b.Dispose();
         }
 
@@ -275,14 +282,91 @@ namespace Paint
             }
                
         }
+
+        private void loadButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.InitialDirectory = "c:\\";
+            dlg.Filter = "jpg files (*.jpg) | *.jpg ";
+            dlg.FilterIndex = 0; // start with Filter *.*
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                z.FillRectangle(new SolidBrush(Color.White), 0, 0, ClientSize.Width, ClientSize.Height);
+                String filename = dlg.FileName;
+                Bitmap loaded = new Bitmap(filename);                
+                z.DrawImage(loaded, 0, 0, paint.Width, paint.Height);
+                this.Refresh();
+            }
+        }
+
+        private void saveButton_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+               int width = Convert.ToInt32(panel1.Width); 
+               int height = Convert.ToInt32(panel1.Height); 
+               Bitmap bmp = new Bitmap(width,height);        
+               panel1.DrawToBitmap(bmp, new Rectangle(0, 0, width, height));
+               bmp.Save(dialog.FileName, ImageFormat.Jpeg);
+            }
+        }
+
+        private void newButton_Click(object sender, EventArgs e)
+        {
+            switch (MessageBox.Show("Bist du sicher das du ein neues Bild erstellen und das Alte verwerfen willst?", "Neues Bild", MessageBoxButtons.YesNo)) 
+            {           
+                case DialogResult.Yes:                    
+                    z.FillRectangle(new SolidBrush(Color.White), 0, 0, ClientSize.Width, ClientSize.Height);
+                    this.Refresh();
+                    break;
+                
+                case DialogResult.No:
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void connectButton_Click(object sender, EventArgs e)
+        {
+            conDlg cd = new conDlg();
+            cd.ShowDialog();
+            if (cd.connected)
+                cd.s.BeginReceive(buffer, 0, buffer.Length, 0,
+                                         new AsyncCallback(ReadCallback), ar.AsyncState);
+            
+        }
+
+        public void ReadCallback(IAsyncResult ar)
+        {
+            try
+            {
+                int bytesRead = s.EndReceive(ar);
+                if (bytesRead > 0)
+                {
+                    // There  might be more data, so store  the data received so far.
+                    //handling of byte message
+                    Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    s.BeginReceive(buffer, 0, buffer.Length, 0,
+                                       new AsyncCallback(ReadCallback), s);
+                }
+            }
+            catch (Exception e)
+            {
+                cd.statusField.BackColor = Color.Red;
+                s.Close();
+            }
+        }
     }
 }
 
 
 
 
-//server
-//datei
+//server  -->> übertragung mit int array für zeichenoperationen  -->> bei 2 teilnehmern kein server in der mitte nötig aber bei mehr leuten schon und man muss sonst die adressden kennen
+//install connectivity funcionality
 //DB
 
 

@@ -14,6 +14,7 @@ Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.pdb
 Z:\Semester 4\WP\Paint\Paint\bin\Debug\Paint.exe
 Z:\Semester 4\WP\Paint\Paint\bin\Debug\Paint.pdb
 Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.csprojResolveAssemblyReference.cache
-Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.Form1.resources
 Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.Properties.Resources.resources
 Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.csproj.GenerateResource.Cache
+Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.conDlg.resources
+Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.Paint.resources
