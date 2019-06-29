@@ -134,7 +134,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox socketBox;
         private System.Windows.Forms.TextBox portBox;
-        private System.Windows.Forms.Panel statusField;
+        public System.Windows.Forms.Panel statusField;
         private System.Windows.Forms.Label label3;
     }
 }

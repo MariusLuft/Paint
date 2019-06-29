@@ -2,7 +2,6 @@ D:\Coding Projekte\C#\Paint\Paint\bin\Debug\Paint.exe.config
 D:\Coding Projekte\C#\Paint\Paint\bin\Debug\Paint.exe
 D:\Coding Projekte\C#\Paint\Paint\bin\Debug\Paint.pdb
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.csprojAssemblyReference.cache
-D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.Form1.resources
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.Properties.Resources.resources
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.csproj.GenerateResource.cache
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.csproj.CoreCompileInputs.cache
@@ -18,3 +17,5 @@ Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.Properties.Resources.resources
 Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.csproj.GenerateResource.Cache
 Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.conDlg.resources
 Z:\Semester 4\WP\Paint\Paint\obj\Debug\Paint.Paint.resources
+D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.conDlg.resources
+D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.Paint.resources

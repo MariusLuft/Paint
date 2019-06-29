@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
+using System.Net;
+using System.Net.Sockets;
 
 
 namespace Paint
@@ -27,7 +29,10 @@ namespace Paint
         FontFamily fontFamily;
         Color myColor;
         conDlg cd = new conDlg();
-        struct buffer
+        const int BufferSize = 256;            // Size of buffer.
+        byte[] buffer = new byte[BufferSize];  // read buffer.
+ 
+        struct puffer
         {
             int id;
             int x1, y1, x2, y2;
@@ -333,34 +338,52 @@ namespace Paint
         {
             conDlg cd = new conDlg();
             cd.ShowDialog();
-            if (cd.connected)
+            if(cd.connected)
                 cd.s.BeginReceive(buffer, 0, buffer.Length, 0,
-                                         new AsyncCallback(ReadCallback), ar.AsyncState);
-            
+                          new AsyncCallback(ReadCallback), cd.s);
         }
 
         public void ReadCallback(IAsyncResult ar)
         {
             try
             {
-                int bytesRead = s.EndReceive(ar);
+                int bytesRead = cd.s.EndReceive(ar);
                 if (bytesRead > 0)
                 {
-                    // There  might be more data, so store  the data received so far.
+                    cd.statusField.BackColor = Color.Blue;
                     //handling of byte message
-                    Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    s.BeginReceive(buffer, 0, buffer.Length, 0,
-                                       new AsyncCallback(ReadCallback), s);
+                    if (cd.connected)
+                        cd.s.BeginReceive(buffer, 0, buffer.Length, 0,
+                                       new AsyncCallback(ReadCallback), cd.s);
                 }
             }
             catch (Exception e)
             {
+                MessageBox.Show(e.ToString());
                 cd.statusField.BackColor = Color.Red;
-                s.Close();
+                cd.s.Close();
+            }
+        }
+
+        private void SendCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Complete sending the data to the remote device.
+                cd.s.EndSend(ar);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+                cd.statusField.BackColor = Color.Red;
+                cd.s.Close();
             }
         }
     }
-}
+}//localhost = 127.0.0.1
+
+// senden == s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None,new AsyncCallback(SendCallback), cd.s);
+
 
 
 

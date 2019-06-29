@@ -16,8 +16,7 @@ namespace Paint
     {
         public Socket s = null;
         public bool connected = false;
-        const int BufferSize = 256;            // Size of buffer.
-        byte[] buffer = new byte[BufferSize];  // read buffer.
+        
         public conDlg()
         {
             InitializeComponent();
@@ -26,13 +25,15 @@ namespace Paint
 
         private void conButton_Click(object sender, EventArgs e)
         {
-            s = new Socket(AddressFamily.InterNetwork, SocketType.Stream,
-                   ProtocolType.Tcp);
-            // create a new IPEndPoint (sockets destination)
-            IPAddress hostadd = IPAddress.Parse(socketBox.Text); 
-            IPEndPoint EPhost = new IPEndPoint(hostadd, Int32.Parse(portBox.Text));
-            // Connects to the host using IPEndPoint.
-            s.BeginConnect(EPhost, new AsyncCallback(ConnectCallback), s);
+            if(portBox.Text.Length!= 0 && socketBox.Text.Length != 0) { 
+                s = new Socket(AddressFamily.InterNetwork, SocketType.Stream,
+                       ProtocolType.Tcp);
+                // create a new IPEndPoint (sockets destination)
+                IPAddress hostadd = IPAddress.Parse(socketBox.Text); 
+                IPEndPoint EPhost = new IPEndPoint(hostadd, Int32.Parse(portBox.Text));
+                // Connects to the host using IPEndPoint.
+                s.BeginConnect(EPhost, new AsyncCallback(ConnectCallback), s);
+            }
         }
 
         private void ConnectCallback(IAsyncResult ar)
@@ -42,7 +43,11 @@ namespace Paint
                 // Complete connecting to the remote device.
                 s.EndConnect(ar);
                 // Begin to receive data.
-                if (s.Connected) this.statusField.BackColor = Color.Green;
+                if (s.Connected)
+                {
+                    this.statusField.BackColor = Color.Green;
+                    connected = true;
+                }
             }
             catch (Exception e)
             {
@@ -54,26 +59,13 @@ namespace Paint
 
         private void disConButton_Click(object sender, EventArgs e)
         {
-            //s.Shutdown(SocketShutdown.Both); // deaktiviert Senden und Empfangen
-            s.Close();
-            if (!s.Connected) this.statusField.BackColor = Color.Red;
-        }
-
-       
-
-        private void SendCallback(IAsyncResult ar)
-        {
-            try
-            {
-                // Complete sending the data to the remote device.
-                s.EndSend(ar);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.ToString());
+           
+            if (connected) { 
+                s.Close();
+                this.statusField.BackColor = Color.Red;
+                connected = false;
             }
         }
-
 
     }
 }
