@@ -1,7 +1,0 @@
-D:\Coding Projekte\C#\myServer\myServer\obj\Debug\myServer.csprojAssemblyReference.cache
-D:\Coding Projekte\C#\myServer\myServer\obj\Debug\myServer.csproj.CoreCompileInputs.cache
-D:\Coding Projekte\C#\myServer\myServer\bin\Debug\myServer.exe.config
-D:\Coding Projekte\C#\myServer\myServer\bin\Debug\myServer.exe
-D:\Coding Projekte\C#\myServer\myServer\bin\Debug\myServer.pdb
-D:\Coding Projekte\C#\myServer\myServer\obj\Debug\myServer.exe
-D:\Coding Projekte\C#\myServer\myServer\obj\Debug\myServer.pdb

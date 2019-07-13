@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 
 namespace Paint
@@ -23,20 +24,37 @@ namespace Paint
         Graphics g;
         Graphics b;    
         Graphics z;
+        Graphics z2;
         Font myFont;
         Pen myPen;
+        Pen myPen2;
         SolidBrush myBrush;
         FontFamily fontFamily;
         Color myColor;
-        conDlg cd = new conDlg();
+        long count;
+        
         const int BufferSize = 256;            // Size of buffer.
         byte[] buffer = new byte[BufferSize];  // read buffer.
- 
-        struct puffer
-        {
-            int id;
-            int x1, y1, x2, y2;
-            //int 
+        conDlg cd1 = new conDlg();
+        puffer puf;
+        byte[] byteData;
+
+        
+       [StructLayout(LayoutKind.Sequential)]
+       public struct puffer
+        {            
+            public int id;
+            
+            public int x1, y1, x2, y2;
+            
+            public int pen, strength;
+
+            //public Font font;
+            
+            public int color;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 35)]
+            public string textmsg;
         }
 
         public Paint()
@@ -45,10 +63,12 @@ namespace Paint
             myBuffer = new Bitmap(ClientSize.Width, ClientSize.Height, PixelFormat.Format24bppRgb);
             paint = new Bitmap(ClientSize.Width, ClientSize.Height, PixelFormat.Format24bppRgb);
             z = Graphics.FromImage(paint);
+            z2 = Graphics.FromImage(paint);
             z.FillRectangle(new SolidBrush(Color.White), 0, 0, ClientSize.Width, ClientSize.Height);
             g = panel1.CreateGraphics();
             b = Graphics.FromImage(myBuffer);
             myPen = Pens.Black;
+            myPen2 = Pens.Black;
             Stifte.Items.Add("Schwarz");
             Stifte.Items.Add("Blau");
             Stifte.Items.Add("Rot");
@@ -63,6 +83,14 @@ namespace Paint
             textBox.Text = "Text bitte hier eingeben.";
             myBrush = new SolidBrush(Color.Black);
             panel2.BackColor = Color.Black;
+
+            /*
+             * Struct exlanation: 
+             * id 0=new 1=text 2=line 3=rect 4=free
+             */
+            puf.id = 0; puf.x1 = 0; puf.y1 = 0; puf.x2 = 0;
+            puf.y2 = 0; puf.pen = 0; puf.strength = 0;/* puf.font = null;*/ puf.color = 0;
+            puf.textmsg = "";
 
             //tooltips
             // Create the ToolTip and associate with the Form container.
@@ -118,7 +146,21 @@ namespace Paint
                 else if (radioFrei.Checked)
                 {
                     z.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
-                    oldPoint = new Point(e.X, e.Y);                    
+                    
+                    if (cd1.connected)
+                    {
+                        this.Text = "Etwas wurde gesendet!";
+                        puf.id = 2;
+                        
+                        //puf.pen = ...
+                        //puf.strength = ....
+                        puf.x1 = e.X; puf.y1 = e.Y;
+                        puf.x2 = oldPoint.X; puf.y2 = oldPoint.Y;
+                        byteData = this.getBytes(puf);
+                        cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                    }
+
+                    oldPoint = new Point(e.X, e.Y);
                 }
 
                 //puffer auf bild
@@ -140,17 +182,87 @@ namespace Paint
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
 
-            if (radioLinie.Checked)
+            if (radioLinie.Checked) {
                 z.DrawLine(myPen, oldPoint, new Point(e.X, e.Y));
+                if (cd1.connected)
+                {
+                    this.Text = "Etwas wurde gesendet!";
+                    puf.id = 3;
+
+                    //puf.pen = ...
+                    //puf.strength = ....
+                    puf.x1 = e.X; puf.y1 = e.Y;
+                    puf.x2 = oldPoint.X; puf.y2 = oldPoint.Y;
+                    byteData = this.getBytes(puf);
+                    cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                }
+            }
+                
             else if (radioRecht.Checked)
                 if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == myPoint.Y)
-                    z.DrawRectangle(myPen, myPoint.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    { z.DrawRectangle(myPen, myPoint.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    if (cd1.connected)
+                    {
+                        this.Text = "Etwas wurde gesendet!";
+                        puf.id = 4;
+
+                        //puf.pen = ...
+                        //puf.strength = ....
+                        puf.x1 = myPoint.X; puf.y1 = myPoint.Y;
+                        puf.x2 = Math.Abs((e.X - myPoint.X)); puf.y2 = Math.Abs((e.Y - myPoint.Y));
+                        byteData = this.getBytes(puf);
+                        cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                    }
+                }
+                    
                 else if (Math.Min(myPoint.X, e.X) == e.X && Math.Min(myPoint.Y, e.Y) == e.Y)
-                    z.DrawRectangle(myPen, e.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    { z.DrawRectangle(myPen, e.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    if (cd1.connected)
+                    {
+                        this.Text = "Etwas wurde gesendet!";
+                        puf.id = 4;
+
+                        //puf.pen = ...
+                        //puf.strength = ....
+                        puf.x1 = e.X; puf.y1 = e.Y;
+                        puf.x2 = Math.Abs((e.X - myPoint.X)); puf.y2 = Math.Abs((e.Y - myPoint.Y));
+                        byteData = this.getBytes(puf);
+                        cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                    }
+                }
+                   
                 else if (Math.Min(myPoint.X, e.X) == e.X && Math.Min(myPoint.Y, e.Y) == myPoint.Y)
-                    z.DrawRectangle(myPen, e.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    { z.DrawRectangle(myPen, e.X, myPoint.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    if (cd1.connected)
+                    {
+                        this.Text = "Etwas wurde gesendet!";
+                        puf.id = 4;
+
+                        //puf.pen = ...
+                        //puf.strength = ....
+                        puf.x1 = e.X; puf.y1 = myPoint.Y;
+                        puf.x2 = Math.Abs((e.X - myPoint.X)); puf.y2 = Math.Abs((e.Y - myPoint.Y));
+                        byteData = this.getBytes(puf);
+                        cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                    }
+                }
+                   
                 else if (Math.Min(myPoint.X, e.X) == myPoint.X && Math.Min(myPoint.Y, e.Y) == e.Y)
-                    z.DrawRectangle(myPen, myPoint.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    { z.DrawRectangle(myPen, myPoint.X, e.Y, Math.Abs((e.X - myPoint.X)), Math.Abs((e.Y - myPoint.Y)));
+                    if (cd1.connected)
+                    {
+                        this.Text = "Etwas wurde gesendet!";
+                        puf.id = 4;
+
+                        //puf.pen = ...
+                        //puf.strength = ....
+                        puf.x1 = myPoint.X; puf.y1 = e.Y;
+                        puf.x2 = Math.Abs((e.X - myPoint.X)); puf.y2 = Math.Abs((e.Y - myPoint.Y));
+                        byteData = this.getBytes(puf);
+                        cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                    }
+                }
+                    
                 
         }
 
@@ -284,6 +396,18 @@ namespace Paint
             {
                 z.DrawString(textBox.Text, myFont, myBrush, e.X, e.Y);
                 this.Refresh();
+
+                if (cd1.connected)
+                {
+                    this.Text = "Etwas wurde gesendet!";
+                    puf.id = 1;
+                    puf.textmsg = textBox.Text;
+                    //puf.font = myFont;
+                    //puf.color = myColor.ToArgb();
+                    puf.x1 = e.X; puf.y1 = e.Y;
+                    byteData = this.getBytes(puf);
+                    cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                }
             }
                
         }
@@ -324,8 +448,15 @@ namespace Paint
                 case DialogResult.Yes:                    
                     z.FillRectangle(new SolidBrush(Color.White), 0, 0, ClientSize.Width, ClientSize.Height);
                     this.Refresh();
+                    if (cd1.connected)
+                    {
+                        this.Text = "Etwas wurde gesendet!";
+                        puf.id = 0;
+                        byteData = this.getBytes(puf);
+                        cd1.s.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), cd1.s);
+                    }
                     break;
-                
+                    
                 case DialogResult.No:
                     break;
 
@@ -335,33 +466,65 @@ namespace Paint
         }
 
         private void connectButton_Click(object sender, EventArgs e)
-        {
-            conDlg cd = new conDlg();
-            cd.ShowDialog();
-            if(cd.connected)
-                cd.s.BeginReceive(buffer, 0, buffer.Length, 0,
-                          new AsyncCallback(ReadCallback), cd.s);
+        {            
+            cd1.ShowDialog();
+            if(cd1.connected)
+                cd1.s.BeginReceive(buffer, 0, buffer.Length, 0,
+                          new AsyncCallback(ReadCallback), cd1.s);
         }
 
         public void ReadCallback(IAsyncResult ar)
         {
             try
             {
-                int bytesRead = cd.s.EndReceive(ar);
+                int bytesRead = cd1.s.EndReceive(ar);
                 if (bytesRead > 0)
                 {
-                    cd.statusField.BackColor = Color.Blue;
                     //handling of byte message
-                    if (cd.connected)
-                        cd.s.BeginReceive(buffer, 0, buffer.Length, 0,
-                                       new AsyncCallback(ReadCallback), cd.s);
+                    puf = this.fromBytes(buffer);
+                    switch (puf.id)
+                    {
+                        case 0:
+                            z.FillRectangle(new SolidBrush(Color.White), 0, 0, ClientSize.Width, ClientSize.Height);
+                            this.Refresh();
+                            this.Text = "Wurde Refreshed!";
+                            break;
+                        case 1:
+                            z.DrawString(puf.textmsg, myFont,/* new SolidBrush(Color.FromArgb(puf.color))*/myBrush, puf.x1, puf.y1);
+                            this.Refresh();
+                            this.Text = "Text gesetzt!";
+                            break;
+                        case 2:
+                            this.Invoke((MethodInvoker)(() => z.DrawLine(myPen, new Point(puf.x2, puf.y2), new Point(puf.x1, puf.y1))));
+                            count++;
+                            if (count%20 == 0) { 
+                                this.Refresh();
+                                this.Text = "Wurde gemalt!";
+                            }
+                            break;
+                        case 3:
+                            z.DrawLine(myPen, new Point(puf.x2, puf.y2), new Point(puf.x1, puf.y1));
+                            this.Refresh();
+                            this.Text = "Linie gezogen!";
+                            break;
+                        case 4:
+                            z.DrawRectangle(myPen, puf.x1, puf.y1, puf.x2, puf.y2);
+                            this.Refresh();
+                            this.Text = "Rechteck gezogen!!";
+                            break;
+                    }
+
+                    //End of Byte handling
+                    if (cd1.connected)
+                        cd1.s.BeginReceive(buffer, 0, buffer.Length, 0,
+                                       new AsyncCallback(ReadCallback), cd1.s);
                 }
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.ToString());
-                cd.statusField.BackColor = Color.Red;
-                cd.s.Close();
+                cd1.statusField.BackColor = Color.Red;
+                cd1.s.Close();
             }
         }
 
@@ -370,14 +533,50 @@ namespace Paint
             try
             {
                 // Complete sending the data to the remote device.
-                cd.s.EndSend(ar);
+                cd1.s.EndSend(ar);
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.ToString());
-                cd.statusField.BackColor = Color.Red;
-                cd.s.Close();
+                cd1.statusField.BackColor = Color.Red;
+                cd1.s.Close();
             }
+        }
+
+        byte[] getBytes(puffer str)
+        {
+            //create big enough byte array
+            int size = Marshal.SizeOf(str);
+            byte[] arr = new byte[size];
+
+            //pointer to unorganized memory
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            //struct to block of unorganized memory
+            Marshal.StructureToPtr(str, ptr, true);
+            //copies to organized memory array
+            Marshal.Copy(ptr, arr, 0, size);
+            //clear unorganized memory space
+            Marshal.FreeHGlobal(ptr);
+            return arr;
+        }
+
+        puffer fromBytes(byte[] arr)
+        {
+            puffer str = new puffer();
+
+            int size = Marshal.SizeOf(str);
+            //pointer to unorganized memory
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+
+            //byte array to unorganized ptr memory
+            Marshal.Copy(arr, 0, ptr, size);
+
+            //unorganized memory to specified structure
+            str = (puffer)Marshal.PtrToStructure(ptr, str.GetType());
+            //clear unorganized memory space
+            Marshal.FreeHGlobal(ptr);
+
+            return str;
         }
     }
 }//localhost = 127.0.0.1
@@ -388,8 +587,7 @@ namespace Paint
 
 
 
-//server  -->> übertragung mit int array für zeichenoperationen  -->> bei 2 teilnehmern kein server in der mitte nötig aber bei mehr leuten schon und man muss sonst die adressden kennen
-//install connectivity funcionality
-//DB
+//farbe und font für text nachrichten
+//pen und stregth für freihand
 
 
