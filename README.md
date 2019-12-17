@@ -1,11 +1,11 @@
 # Paint
 C# Paint, draw together online
 
-How to open:
+# How to open:
 
 To open the application please open the Paint.exe file in "Paint/Bin/Debug". Otherwise open the VS Project with the Paint.sln file.
 
-How to use:
+# How to use:
 
     Offline functionality: 
         Choose between printing text and drawing lines and rectangles. It's possible to change the pen's thickness and 
