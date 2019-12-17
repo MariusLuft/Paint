@@ -14,6 +14,9 @@ How to use:
         
     Online functionality: 
         After connecting with other computers by putting in the Port- and Socket-numbers you can work on you drawings with multiple other
-        people simultaneaously. In order to connect, start the myServer.exe (myServer/myServer.exe) and click Server -> Start Server.             Afterwards click on your client and choose "Verbinden". Put the IP address from where your server's running as the socket address         and 20000 as the port number.
+        people simultaneaously. 
+        In order to connect, start the myServer.exe (myServer/myServer.exe) and click Server -> Start Server.   
+        Afterwards click on your client and choose "Verbinden". Put the IP address from where your server's running as the socket
+        address and 20000 as the port number.
         
 Enjoy!
