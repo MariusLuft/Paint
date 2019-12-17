@@ -4,7 +4,6 @@ D:\Coding Projekte\C#\Paint\Paint\bin\Debug\Paint.pdb
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.csprojAssemblyReference.cache
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.Properties.Resources.resources
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.csproj.GenerateResource.cache
-D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.csproj.CoreCompileInputs.cache
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.exe
 D:\Coding Projekte\C#\Paint\Paint\obj\Debug\Paint.pdb
 Z:\Semester 4\WP\Paint\Paint\bin\Debug\Paint.exe.config
