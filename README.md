@@ -20,3 +20,6 @@ To open the application please open the Paint.exe file in "Paint/Bin/Debug". Oth
         address and 20000 as the port number.
         
 Enjoy!
+
+![Paint](https://github.com/MariusLuft/Paint/blob/master/PAINT.PNG)
+
